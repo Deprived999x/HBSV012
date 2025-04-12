@@ -356,103 +356,6 @@ function cleanDescription(description) {
     // Final spacing cleanup
     cleaned = cleaned.replace(/\s{2,}/g, ' ').trim();
     
-    // Fix grammar and article usage issues
-    
-    // Fix incorrect article usage (a/an) more comprehensively
-    cleaned = cleaned.replace(/\b(a|an)\s+([aeiou][a-z]*)\b/gi, (match, article, word) => {
-        // Special cases where 'a' is correct before a vowel because of sound
-        if (/^uni|^us|^uk|^eu|^ut/i.test(word)) {
-            return `a ${word}`;
-        }
-        return `an ${word}`;
-    });
-    
-    cleaned = cleaned.replace(/\b(a|an)\s+([^aeiou][a-z]*)\b/gi, (match, article, word) => {
-        // Special cases where 'an' is correct before a consonant
-        if (/^hour|^heir|^honor|^honest/i.test(word)) {
-            return `an ${word}`;
-        }
-        return `a ${word}`;
-    });
-    
-    // Fix redundant phrases like "density in density" and "volume in volume"
-    cleaned = cleaned.replace(/(\w+) in \1/gi, "$1");
-    
-    // Fix improper compound descriptors with hyphens
-    cleaned = cleaned.replace(/(\w+)-base (\w+)-nostrils/g, "$1-base, $2-nostrils");
-    
-    // Additional fixes based on character refinement guidelines
-    
-    // 1. Capitalize heritage terms
-    cleaned = cleaned.replace(/\b(latino|european|asian|african|hispanic|mediterranean|middle eastern|nordic|celtic|slavic|south asian|southeast asian|east asian|pacific islander|indigenous|native american)\b/gi, 
-        match => match.charAt(0).toUpperCase() + match.slice(1).toLowerCase());
-    
-    // 2. Fix compound adjective patterns
-    const compoundAdjectivePatterns = [
-        // Face and head patterns
-        /\b(triangle|oval|round|square|diamond|heart|oblong) (head|face)\b/gi,
-        /\b(light|medium|dark)[ -]?(light|medium|dark) (skin|complexion)\b/gi,
-        // Nose patterns
-        /\b(narrow|wide)[ -]?(bridge|bridged)\b/gi,
-        /\b(flared|narrow|wide)[ -]?(nostril|nostrils)\b/gi,
-        // Hair length patterns
-        /\b(shoulder|hip|waist|mid[\- ]back|chest)[ -]?(length)\b/gi,
-        // Specific compound adjectives from example
-        /\blight medium\b/gi,
-        /\btriangle head\b/gi,
-        /\blong face\b/gi,
-    ];
-    
-    compoundAdjectivePatterns.forEach(pattern => {
-        cleaned = cleaned.replace(pattern, match => match.replace(/\s+/g, '-'));
-    });
-    
-    // 3. Convert base forms to adjectives
-    cleaned = cleaned.replace(/\b(flared|narrow|wide)[\- ]?nostrils\b/gi, "$1-nostriled");
-    cleaned = cleaned.replace(/\b(feminine|masculine|neutral)[\- ]?slope\b/gi, "$1-sloped");
-    cleaned = cleaned.replace(/\bwell defined\b/gi, "well-defined");
-    cleaned = cleaned.replace(/\bpoorly defined\b/gi, "poorly-defined");
-    cleaned = cleaned.replace(/\bsharply defined\b/gi, "sharply-defined");
-    cleaned = cleaned.replace(/\bsubtly defined\b/gi, "subtly-defined");
-    cleaned = cleaned.replace(/\bsoftly defined\b/gi, "softly-defined");
-    
-    // 4. Fix improper modifiers and spacing in descriptions
-    cleaned = cleaned.replace(/(\w+)[\- ]textured[\- ]mature/gi, "$1 textured");
-    cleaned = cleaned.replace(/expressive[\- ]angled/gi, "expressive, angled");
-    cleaned = cleaned.replace(/\b(\w+) density\b/gi, "$1 in density");
-    cleaned = cleaned.replace(/\b(\w+) volume\b/gi, "$1 in volume");
-    
-    // 5. Smooth redundant stacks and fix conjunction flow
-    cleaned = cleaned.replace(/thin (slightly|full|natural)/gi, "thin, $1");
-    cleaned = cleaned.replace(/styled in a (.+) and with a/gi, "styled in a $1 with a");
-    cleaned = cleaned.replace(/\b(broad|wide)\s+(broad|wide)\b/gi, match => {
-        const words = match.split(/\s+/);
-        return words[0] === words[1] ? words[0] : `${words[0]}, subtly ${words[1]}`;
-    });
-    
-    // 6. Fix part repetition more comprehensively
-    cleaned = cleaned.replace(/\b(\w+) part part\b/gi, "$1 part");
-    cleaned = cleaned.replace(/side part part/gi, "side part");
-    cleaned = cleaned.replace(/middle part part/gi, "middle part");
-    cleaned = cleaned.replace(/deep part part/gi, "deep part");
-    
-    // Fix incorrect adjective order - put size before color for eyes
-    cleaned = cleaned.replace(/(\w+)\s+(\w+)\s+(eyes)/gi, (match, adj1, adj2, noun) => {
-        // Check if first word is a color and second is a size/shape
-        const sizeAdjectives = ['small', 'large', 'narrow', 'wide', 'almond', 'round'];
-        const isSize1 = sizeAdjectives.some(size => adj1.toLowerCase().includes(size));
-        const isSize2 = sizeAdjectives.some(size => adj2.toLowerCase().includes(size));
-        
-        // If first is color and second is size, swap them
-        if (!isSize1 && isSize2) {
-            return `${adj2} ${adj1} ${noun}`;
-        }
-        return match;
-    });
-    
-    // Final clean-up pass
-    cleaned = cleaned.replace(/\s{2,}/g, ' ').trim();
-    
     // Ensure proper capitalization of first letter of each sentence
     cleaned = cleaned.replace(/([.!?]\s+)([a-z])/g, (match, punctuation, letter) => {
         return punctuation + letter.toUpperCase();
@@ -909,7 +812,7 @@ export function generateMarkdownBio(completedParams, taxonomy) {
 
 // ======= FINAL HARDENED FUNCTION: generateNaturalLanguageDescription =======
 
-function generateNaturalLanguageDescription(data) {
+function backupGenerateDescription(data) {
   try {
     function safe(key) {
       return data && data[key] ? data[key] : "Unknown";
